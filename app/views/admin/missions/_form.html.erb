@@ -1,0 +1,71 @@
+
+      
+        <%= form_for ['admin',@mission], {:html => {:class => 'form-horizontal well'}} do |f| %>
+        <fieldset>
+        
+          <div class="control-group">
+            <label class="control-label" for="input01">Name</label>
+            <div class="controls">              
+              <%= f.text_field :name, {:class => 'input-xlarge'} %>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="input01">Launch Date</label>
+            <div class="controls">  
+            <%= f.date_select :launch_date %>            
+              
+            </div>
+          </div>          
+
+          <div class="control-group">
+            <label class="control-label" for="optionsCheckbox">Active</label>
+            <div class="controls">
+              <label class="checkbox">
+                <%= f.check_box :active %>
+              </label>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label" for="input01">Payload weight</label>
+            <div class="controls">              
+              <%= f.text_field :payload_weight, {:class => 'input-xlarge'} %>
+            </div>
+          </div>          
+
+          <div class="control-group">
+            <label class="control-label" for="input01">Balloon type</label>
+            <div class="controls">              
+              <%= f.text_field :balloon_type, {:class => 'input-xlarge'} %>
+            </div>
+          </div>          
+
+          <div class="control-group">
+            <label class="control-label" for="input01">Lifting Gas</label>
+            <div class="controls">              
+              <%= f.text_field :lifting_gas, {:class => 'input-xlarge'} %>
+            </div>
+          </div>        
+
+          <div class="control-group">
+            <label class="control-label" for="input01">Recovery Status</label>
+            <div class="controls">              
+              <%= f.text_field :recovery_status, {:class => 'input-xlarge'} %>
+            </div>
+          </div>
+
+
+          <div class="control-group">
+            <label class="control-label" for="textarea">Description</label>
+            <div class="controls">              
+              <%= f.text_area :description, :rows => 5, :class => 'input-xlarge' %>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary">Save</button>
+            <a class="btn" href="<%= admin_missions_path %>">Cancel</a>
+          </div>
+        </fieldset>
+      <% end %>

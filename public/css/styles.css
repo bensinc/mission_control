@@ -1,0 +1,86 @@
+
+h4 a {
+	color: #333;
+	text-decoration: underline;
+}
+
+@media (min-width: 640px) {
+	#statusBox {
+		position: absolute;
+		z-index: 999; 
+		width: 200px; 
+		bottom: 60px; 
+		background-color: white; 
+		padding: 10px; 
+		border: 1px solid #333; 
+		padding-top: 0px; 
+		top: 60px;
+		right: 10px;
+		overflow: auto;
+	}
+
+
+	#missionBox {
+		position: absolute;
+		z-index: 999;
+		width: 200px;
+		top: 60px;
+		background-color: white;
+		padding: 10px;
+		border: 1px solid #333;
+		padding-top: 0px;
+		left: 70px;
+		padding-top: 5px;
+		overflow: auto;
+	}
+
+
+}
+
+@media (max-width: 640px) {
+
+	#status {
+		float: left;
+		width: 35%;
+		padding: 5px;
+	}
+
+	#primaryTracker, #secondaryTracker {
+
+		padding: 5px;
+		float: right;
+		width: 55%;
+	}
+
+	#statusBox {
+		font-size: 10px;
+		position: absolute;
+		z-index: 999; 
+		width: 100%; 
+		height: 40%;
+		line-height: 13px;
+		
+		background-color: white; 
+		border-top: 1px solid #333; 
+		padding-top: 0px; 
+
+		
+		left: 0px;
+		bottom: 0px;
+		overflow: auto;
+	}
+
+	#statusBox h4 {
+		margin: 0 0 0 0;
+		padding: 0 0 0 0;
+	}
+
+
+	#missionBox {
+		display: none;
+	}
+
+
+}
+
+

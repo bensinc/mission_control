@@ -1,0 +1,229 @@
+<div class="page-header">
+
+
+      <div id="statusBox">
+        <div id="status">
+          <h4>Status</h4>
+          <strong>Current mode:</strong> <%= @mission.mode %><br/>
+          <strong>Launch date:</strong> <%= @mission.launch_date.strftime('%m/%d/%Y') %><br/>
+          <% if @mission.launch_time %>
+          	<strong>Launch time:</strong> <%= @mission.launch_time.strftime('%H:%M %Z') %><br/>
+          	<strong>Mission time elapsed:</strong>
+            <% if @mission.land_time %>            
+              <%= Time.at(Time.now - @mission.land_time.to_time).gmtime.strftime('%R:%S') %>             
+            <% else %>
+              <%= Time.at(Time.now - @mission.launch_time.to_time).gmtime.strftime('%R:%S') %> 
+            <% end %>
+          <% end %>
+        </div>
+
+
+        <div id="primaryTracker">
+          <h4><a href="#" onclick="centerPrimary(); return(false);">Primary tracker</a></h4>
+          <% if @primary %>
+          	<strong>Position:</strong> <%= number_with_precision @primary.lat, :precision => 3 %>, <%= number_with_precision @primary.lon, :precision => 3 %><br/>
+          	<strong>Altitude:</strong>
+
+          		<% if @primary.altitude %>
+          			<%= number_with_delimiter number_with_precision(@primary.altitude * 3.28084, :precision => 0) %> ft
+          		<% else %>
+          			unknown
+          		<% end %>
+          		<br/>
+
+          	<strong>Course:</strong>
+          	<% if @primary.course %>
+          		<%= @primary.course %>&deg;
+          	<% else %>
+          		unknown
+          	<% end %>
+          	<br/>
+
+          	<strong>Speed:</strong>
+          	<% if @primary.speed %>
+          		<%= number_with_precision @primary.speed * 0.621371, :precision => 0 %> mph
+          	<% else %>
+          		unknown
+          	<% end %>
+          	<br/>
+            <%= time_ago_in_words(@primary.created_at) %> ago
+
+          <% else %>
+          	<strong>Not available</strong>
+          <% end %>
+        </div>
+
+
+        <div id="secondaryTracker">
+          <h4><a href="#" onclick="centerSecondary(); return(false);">Secondary tracker</a></h4>
+          <% if @secondary %>
+          	<strong>Position:</strong> <%= number_with_precision @secondary.lat, :precision => 3 %>, <%= number_with_precision @secondary.lon, :precision => 3 %><br/>            
+
+            <%= time_ago_in_words(@secondary.created_at) %> ago
+          <% else %>
+          	<strong>Not available</strong>
+          <% end %>
+        </div>
+
+
+      </div>
+
+      <div id="missionBox">
+    	
+      	<h4 style="">Mission Details</h4>
+      	<strong>Payload weight:</strong> <%= @mission.payload_weight %><br/>
+      	<strong>Balloon type:</strong> <%= @mission.balloon_type %><br/>
+      	<strong>Lifting gas:</strong> <%= @mission.lifting_gas %><br/>
+      	<br/>
+     	<%= simple_format @mission.description %>
+    </div>
+
+
+
+<script type="text/javascript"
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA7K19eNoObOdgmSnULLA5akKYhhQGVbv8&sensor=true">
+</script>
+<script type="text/javascript">
+
+ var map;
+
+
+ function centerPrimary() {
+    <% if @primary %>
+      map.panTo(new google.maps.LatLng(<%= @primary.lat %>, <%= @primary.lon %>));
+    <% end %>
+  }
+
+ function centerSecondary() {
+    <% if @secondary %>
+      map.panTo(new google.maps.LatLng(<%= @secondary.lat %>, <%= @secondary.lon %>));
+    <% end %>
+  }  
+
+  function initialize() {
+    var mapOptions = {      
+      center: new google.maps.LatLng(<%= @primary.lat %>, <%= @primary.lon %>),
+      zoom: 10,
+      mapTypeId: google.maps.MapTypeId.ROADMAP
+    };
+    map = new google.maps.Map(document.getElementById("map"),
+        mapOptions);
+
+    var lineCoords = new Array();
+    var lineCoords2 = new Array();
+
+     var balloonImage = new google.maps.MarkerImage('/img/balloon-marker-red.png',
+      // This marker is 20 pixels wide by 32 pixels tall.
+      new google.maps.Size(20, 20),
+      // The origin for this image is 0,0.
+      new google.maps.Point(0,0),
+      // The anchor for this image is the base of the flagpole at 0,32.
+      new google.maps.Point(10, 10));
+
+   var marker = new google.maps.Marker({
+        position: new google.maps.LatLng(<%= @primary.lat %>, <%= @primary.lon %>),
+        icon: balloonImage,
+        map: map
+        
+    });   
+
+
+   <% if @secondary %>
+     var balloonImage2 = new google.maps.MarkerImage('/img/balloon-marker-blue.png',
+      // This marker is 20 pixels wide by 32 pixels tall.
+      new google.maps.Size(20, 20),
+      // The origin for this image is 0,0.
+      new google.maps.Point(0,0),
+      // The anchor for this image is the base of the flagpole at 0,32.
+      new google.maps.Point(10, 10));
+
+   var marker2 = new google.maps.Marker({
+        position: new google.maps.LatLng(<%= @secondary.lat %>, <%= @secondary.lon %>),
+        icon: balloonImage2,
+        map: map
+        
+    });   
+
+ <% for p in @mission.spots %>
+  
+   lineCoords2.push(new google.maps.LatLng(<%= p.lat %>, <%= p.lon %>));
+    <% end %>   
+
+   <% end %>
+
+
+
+   <% if @mission.burst_alt %>
+
+      var image = new google.maps.MarkerImage('/img/pop-marker.png',
+      // This marker is 20 pixels wide by 32 pixels tall.
+      new google.maps.Size(16, 16),
+      // The origin for this image is 0,0.
+      new google.maps.Point(0,0),
+      // The anchor for this image is the base of the flagpole at 0,32.
+      new google.maps.Point(8, 8));
+ 
+
+
+     var burstMarker = new google.maps.Marker({
+          position: new google.maps.LatLng(<%= @mission.burst_lat %>, <%= @mission.burst_lon %>),
+          map: map,
+          icon: image,
+          title: 'Burst at <%= number_with_delimiter((@mission.burst_alt * 3.28084).round) %> ft'
+          
+      });   
+
+      var infowindow = new google.maps.InfoWindow({
+          content: 'Burst at <%= number_with_delimiter((@mission.burst_alt * 3.28084).round) %> ft'
+      });
+
+      google.maps.event.addListener(burstMarker, 'click', function() {
+        infowindow.open(map,burstMarker);
+      });
+
+   <% end %>
+
+
+    <% for p in @mission.packets %>
+ 	
+	 lineCoords.push(new google.maps.LatLng(<%= p.lat %>, <%= p.lon %>));
+    <% end %>
+
+
+
+  var flightPath = new google.maps.Polyline({
+    path: lineCoords,
+    strokeColor: "#FF0000",
+    strokeOpacity: 1.0,
+    strokeWeight: 2
+  });    
+
+    flightPath.setMap(map);
+
+
+  var flightPath2 = new google.maps.Polyline({
+    path: lineCoords2,
+    strokeColor: "#3c70c3",
+    strokeOpacity: 1.0,
+    strokeWeight: 2
+  });    
+
+    flightPath2.setMap(map);
+
+
+  }
+
+  $(function() {
+
+    setTimeout(function(){
+      // Hide the address bar!
+      window.scrollTo(0, 1);
+    }, 0);  
+
+  	initialize();
+      
+  });
+</script>
+
+
+
