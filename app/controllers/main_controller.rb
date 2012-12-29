@@ -5,6 +5,7 @@ class MainController < ApplicationController
   	@mission.update_mode
   	@primary = @mission.latest_primary
   	@secondary = @mission.latest_secondary
+  	@chase = Chase.find(:first, :order => 'created_at desc');
 
   end
 

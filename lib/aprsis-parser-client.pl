@@ -8,14 +8,16 @@ $dsn = "DBI:mysql:database=mission_control_development;host=localhost";
 
 $dbh = DBI->connect($dsn, 'root', '');
 
-my $is = new Ham::APRS::IS('rotate.aprs.net:10152', 'KC0ZMX', 'appid' => 'BenAPRS 0.1', 'filter' => 'r/41.62217/-93.80767/100');
+# my $is = new Ham::APRS::IS('rotate.aprs.net:10152', 'KC0ZMX', 'appid' => 'BenAPRS 0.1', 'filter' => 'r/41.62217/-93.80767/100');
+my $is = new Ham::APRS::IS('rotate.aprs.net:14580', 'KC0ZMX', 'passcode' => 17827, 'appid' => 'BenAPRS 0.1', 'filter' => 'b/KC0ZMX*');
+
 $is->connect('retryuntil' => 3) || die "Failed to connect: $is->{error}";
 
-for (my $i = 0; $i < 10; $i += 1) {
+while (1 == 1) {
 	my $l = $is->getline_noncomment();
 	next if (!defined $l);
 	
-	print "\n--- new packet ---\n";
+	# print "\n--- new packet ---\n";
 #	print "$l\n";
 	
 	my %packetdata;
@@ -39,16 +41,35 @@ for (my $i = 0; $i < 10; $i += 1) {
 			
 		# }
 
-		$dbh->do('INSERT INTO packets 
-			(mission_id, `from`,`to`,`kind`,`raw`, `lat`, `lon`, altitude, course, speed, symbol, symbol_table, `comment`, `object_name`, path, created_at) VALUES 
-			(1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())', undef, 
-			$packetdata{srccallsign}, $packetdata{dstcallsign}, $packetdata{type}, $l,
-			$packetdata{latitude}, $packetdata{longitude}, $packetdata{altitude}, $packetdata{course}, $packetdata{speed},
-			$packetdata{symbolcode}, $packetdata{symboltable},
-			$packetdata{comment},
-			$packetdata{objectname},
-			$path
-		);
+		print $packetdata{srccallsign};
+		print "\n";
+
+		if ($packetdata{srccallsign} eq 'KC0ZMX-11') {
+			print "Logging KC0ZMX-11\n";
+
+			$dbh->do('INSERT INTO packets 
+				(mission_id, `from`,`to`,`kind`,`raw`, `lat`, `lon`, altitude, course, speed, symbol, symbol_table, `comment`, `object_name`, path, created_at) VALUES 
+				(1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())', undef, 
+				$packetdata{srccallsign}, $packetdata{dstcallsign}, $packetdata{type}, $l,
+				$packetdata{latitude}, $packetdata{longitude}, $packetdata{altitude}, $packetdata{course}, $packetdata{speed},
+				$packetdata{symbolcode}, $packetdata{symboltable},
+				$packetdata{comment},
+				$packetdata{objectname},
+				$path
+			);
+
+		}
+
+		if ($packetdata{srccallsign} eq 'KC0ZMX-7') {
+			print "Logging KC0ZMX-7\n";
+			$dbh->do('INSERT INTO chases 
+				(mission_id, `lat`, `lon`, created_at) VALUES 
+				(1, ?, ?, NOW())', undef, 				
+				$packetdata{latitude}, $packetdata{longitude}
+			);
+
+		}
+
 
 		# print $packetdata{srccallsign};
 		# print $packetdata{dstcallsign};

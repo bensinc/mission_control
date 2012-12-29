@@ -19,7 +19,7 @@
 
 
         <div id="primaryTracker">
-          <h4><a href="#" onclick="centerPrimary(); return(false);">Primary tracker</a></h4>
+          <h4><img src="/img/balloon-marker-red.png"/><a href="#" onclick="centerPrimary(); return(false);">Primary tracker</a></h4>
           <% if @primary %>
           	<strong>Position:</strong> <%= number_with_precision @primary.lat, :precision => 3 %>, <%= number_with_precision @primary.lon, :precision => 3 %><br/>
           	<strong>Altitude:</strong>
@@ -55,7 +55,7 @@
 
 
         <div id="secondaryTracker">
-          <h4><a href="#" onclick="centerSecondary(); return(false);">Secondary tracker</a></h4>
+          <h4><img src="/img/balloon-marker-blue.png"/><a href="#" onclick="centerSecondary(); return(false);">Backup tracker</a></h4>
           <% if @secondary %>
           	<strong>Position:</strong> <%= number_with_precision @secondary.lat, :precision => 3 %>, <%= number_with_precision @secondary.lon, :precision => 3 %><br/>            
 
@@ -64,6 +64,17 @@
           	<strong>Not available</strong>
           <% end %>
         </div>
+
+        <div id="chaseTracker">
+          <h4><img src="/img/chase-marker.png"/><a href="#" onclick="centerChase(); return(false);">Chase Vehicle</a></h4>
+          <% if @chase %>
+            <strong>Position:</strong> <%= number_with_precision @chase.lat, :precision => 3 %>, <%= number_with_precision @chase.lon, :precision => 3 %><br/>            
+
+            <%= time_ago_in_words(@chase.created_at) %> ago
+          <% else %>
+            <strong>Not available</strong>
+          <% end %>
+        </div>        
 
 
       </div>
@@ -89,14 +100,20 @@
 
 
  function centerPrimary() {
-    <% if @primary %>
+    <% if @primary and @primary.lat %>
       map.panTo(new google.maps.LatLng(<%= @primary.lat %>, <%= @primary.lon %>));
     <% end %>
   }
 
  function centerSecondary() {
-    <% if @secondary %>
+    <% if @secondary and @secondary.lat %>
       map.panTo(new google.maps.LatLng(<%= @secondary.lat %>, <%= @secondary.lon %>));
+    <% end %>
+  }  
+
+ function centerChase() {
+    <% if @chase and @chase.lat %>
+      map.panTo(new google.maps.LatLng(<%= @chase.lat %>, <%= @chase.lon %>));
     <% end %>
   }  
 
@@ -128,6 +145,25 @@
     });   
 
 
+   <% if @chase %>
+     var chaseImage = new google.maps.MarkerImage('/img/chase-marker.png',
+      // This marker is 20 pixels wide by 32 pixels tall.
+      new google.maps.Size(20, 20),
+      // The origin for this image is 0,0.
+      new google.maps.Point(0,0),
+      // The anchor for this image is the base of the flagpole at 0,32.
+      new google.maps.Point(10, 10));
+
+   var chaseMarker = new google.maps.Marker({
+        position: new google.maps.LatLng(<%= @chase.lat %>, <%= @chase.lon %>),
+        icon: chaseImage,
+        map: map
+        
+    });  
+
+   <% end %>
+
+
    <% if @secondary %>
      var balloonImage2 = new google.maps.MarkerImage('/img/balloon-marker-blue.png',
       // This marker is 20 pixels wide by 32 pixels tall.
@@ -144,10 +180,13 @@
         
     });   
 
+
+
  <% for p in @mission.spots %>
-  
-   lineCoords2.push(new google.maps.LatLng(<%= p.lat %>, <%= p.lon %>));
-    <% end %>   
+    <% if p.lat %>
+      lineCoords2.push(new google.maps.LatLng(<%= p.lat %>, <%= p.lon %>));
+    <% end %>
+  <% end %>   
 
    <% end %>
 
