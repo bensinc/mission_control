@@ -122,9 +122,13 @@
 
   function initialize() {
 
-    <% if @primary %>
     var mapOptions = {      
+          <% if @primary %>
+
       center: new google.maps.LatLng(<%= @primary.lat %>, <%= @primary.lon %>),
+      <% else %>
+        center: new google.maps.LatLng(<%= @chase.lat %>, <%= @chase.lon %>),
+      <% end %>
       zoom: 10,
       mapTypeId: google.maps.MapTypeId.ROADMAP
     };
@@ -143,7 +147,11 @@
       new google.maps.Point(10, 10));
 
    var marker = new google.maps.Marker({
+    <% if @primary %>
         position: new google.maps.LatLng(<%= @primary.lat %>, <%= @primary.lon %>),
+      <% else %>
+position: new google.maps.LatLng(<%= @chase.lat %>, <%= @chase.lon %>),
+      <% end %>
         icon: balloonImage,
         map: map
         
@@ -254,7 +262,6 @@
 
     flightPath2.setMap(map);
 
-    <% end %>
 
   }
 
