@@ -1,3 +1,5 @@
 == Mission Control
 
 A system for logging and displaying high altitude balloon and chase vehicle position reports.
+
+Integrates data from APRS-IS and SPOT.
